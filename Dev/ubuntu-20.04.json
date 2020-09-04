@@ -21,7 +21,7 @@
         "boot_wait": "5s",
         "boot_command": [
           "<enter><enter><f6><esc><wait> ",
-          "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
+          "autoinstall ds=nocloud-net;s=https://github.com/ataylor05/Packer.vSphere.Vault/blob/master/Dev/user-data",
           "<enter>"
         ]
       }
