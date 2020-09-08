@@ -28,7 +28,7 @@ variable "vsphere_network" {
 }
 variable "consul_vm_name" {
   type = string
-  default = "Consul-1"
+  default = "Dev-Consul-1"
 }
 variable "consul_template_name" {
   type = string
