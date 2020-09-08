@@ -1,0 +1,121 @@
+{
+  "variables": {
+    "consul_version": "1.8.3"
+  },
+  
+  "builders": [
+    {
+      "type": "vsphere-iso",
+
+      "vcenter_server": "vcsa.anet.local",
+      "cluster": "nodes",
+      "datastore": "datastore1",
+      "username": "administrator@vsphere.local",
+      "password": "password",
+      "insecure_connection": true,
+      "convert_to_template": true,
+
+      "vm_name": "consul-template",
+      "guest_os_type": "centos7_64Guest",
+      "firmware": "bios",
+      "iso_paths": ["[datastore1] iso/Oracle Linux Release 7.7.iso"],
+
+      "CPUs": 2,
+      "RAM": 2048,
+      "RAM_reserve_all": true,
+      "disk_controller_type": "pvscsi",
+      "floppy_files": ["ks.cfg"],
+
+      "network_adapters": [
+        {
+          "network": "VM Network",
+          "network_card": "vmxnet3"
+        }
+      ],
+
+      "storage": [
+        {
+          "disk_size": 40960,
+          "disk_thin_provisioned": true
+        }
+      ],
+
+      "boot_command": [
+        "<esc><wait>",
+        "linux ks=hd:fd0:/ks.cfg<enter>"
+      ],
+
+      "ssh_username": "root",
+      "ssh_password": "password"
+    }
+  ],
+  
+  "provisioners": [
+    {
+      "inline": [
+        "yum update -y",
+        "wget https://releases.hashicorp.com/consul/{{user `consul_version`}}/consul_{{user `consul_version`}}_linux_amd64.zip",
+        "unzip consul_{{user `consul_version`}}_linux_amd64.zip",
+        "rm -f consul_{{user `consul_version`}}_linux_amd64.zip",
+        "mv consul /usr/bin",
+        "useradd --system --home /etc/consul.d --shell /bin/false consul",
+        "mkdir /opt/consul",
+        "mkdir /etc/consul.d",
+        "chown -R consul:consul /opt/consul"
+      ],
+      "type": "shell"
+    },
+    {
+      "type": "file",
+      "source": "consul.service",
+      "destination": "/usr/lib/systemd/system/consul.service"
+    },
+    {
+      "type": "file",
+      "source": "consul.hcl",
+      "destination": "/etc/consul.d/consul.hcl"
+    },
+    {
+      "type": "file",
+      "source": "server.hcl",
+      "destination": "/etc/consul.d/server.hcl"
+    },
+    {
+      "type": "file",
+      "source": "node-acl.hcl",
+      "destination": "/root/node-acl.hcl"
+    },
+    {
+      "type": "file",
+      "source": "vault-policy.hcl",
+      "destination": "/root/vault-policy.hcl"
+    },
+    {
+      "inline": [
+        "cd /etc/consul.d/",
+        "consul tls ca create",
+        "consul tls cert create -server -dc dc1",
+        "consul tls cert create -client -dc dc1",
+        "echo 'export CONSUL_CACERT=/etc/consul.d/consul-agent-ca.pem' >> /etc/profile",
+        "echo 'export CONSUL_CLIENT_CERT=/etc/consul.d/dc1-client-consul-0.pem' >> /etc/profile",
+        "echo 'export CONSUL_CLIENT_KEY=/etc/consul.d/dc1-client-consul-0-key.pem' >> /etc/profile",
+        "chown -R consul:consul /etc/consul.d",
+        "chmod 640 /etc/consul.d/consul.hcl",
+        "chmod 640 /etc/consul.d/server.hcl",
+        "systemctl enable consul",
+        "systemctl start consul",
+        "sleep 60",
+        "consul acl bootstrap > /root/consul_acl_bootstrap",
+        "CONSUL_ACL_TOKEN=$(grep '^SecretID:' /root/consul_acl_bootstrap | cut -d ':' -f 2| cut -d ' ' -f 10)",
+        "consul acl policy create -token=${CONSUL_ACL_TOKEN} -name node-policy -rules @/root/node-acl.hcl",
+        "consul acl token create -token=${CONSUL_ACL_TOKEN} -description 'node token' -policy-name node-policy",
+        "consul acl set-agent-token -token=${CONSUL_ACL_TOKEN} agent ${CONSUL_ACL_TOKEN}",
+        "consul acl policy create -token=${CONSUL_ACL_TOKEN} -name vault-policy -rules @/root/vault-policy.hcl",
+        "consul acl token create -token=${CONSUL_ACL_TOKEN} -description 'Token for Vault Service' -policy-name vault-policy > /root/vault_token",
+        "VAULT_TOKEN=$(grep '^SecretID:' /root/vault_token | cut -d ':' -f 2| cut -d ' ' -f 10)",
+        "echo Vault Access Token: ${VAULT_TOKEN}"
+      ],
+      "type": "shell"
+    }
+  ]
+}
