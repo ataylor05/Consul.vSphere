@@ -70,20 +70,4 @@ resource "vsphere_virtual_machine" "consul_vm_1" {
       dns_server_list = var.consul_dns_servers
     }
   }
-  provisioner "remote-exec" {
-    connection {
-      type     = "ssh"
-      user     = "root"
-      password = var.consul_root_password
-      host     = var.consul_ip_address
-    }
-
-    inline = [
-      "mkdir --parents /etc/consul.d",
-      "consul tls ca create",
-      "cd /etc/consul.d",
-      "consul tls cert create -server -dc dc1",
-      "consul tls cert create -client -dc dc1",
-    ]
-  }
 }
