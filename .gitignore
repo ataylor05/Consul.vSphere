@@ -1,3 +1,12 @@
 Dev/packer_cache/*
+Dev/Terraform/.terraform/*
+Dev/Terraform/terraform.tfstate
+Dev/Terraform/terraform.tfstate.backup
 Stage/packer_cache/*
+Stage/Terraform/.terraform/*
+Stage/Terraform/terraform.tfstate
+Stage/Terraform/terraform.tfstate.backup
 Prod/packer_cache/*
+Prod/Terraform/.terraform/*
+Prod/Terraform/terraform.tfstate
+Prod/Terraform/terraform.tfstate.backup
