@@ -1,6 +1,6 @@
 datacenter = "dc1"
 data_dir = "/opt/consul"
-encrypt = "000000000000000000000000000000"
+encrypt = "U+5h6++LDvk4hkwkvc8dRSYF471EMh8eEX0/omEy6XM="
 retry_join = ["192.168.1.4"]
 
 ca_file = "/etc/consul.d/consul-agent-ca.pem"
@@ -9,12 +9,6 @@ key_file = "/etc/consul.d/dc1-server-consul-0-key.pem"
 verify_incoming = true
 verify_outgoing = true
 verify_server_hostname = true
-
-acl = {
-  enabled = true
-  default_policy = "allow"
-  enable_token_persistence = true
-}
 
 performance {
   raft_multiplier = 1

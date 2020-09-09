@@ -26,13 +26,13 @@ variable "vsphere_network" {
   type = string
   default = "VM Network"
 }
-variable "consul_vm_name" {
-  type = string
-  default = "Dev-Consul-1"
-}
 variable "consul_template_name" {
   type = string
-  default = "consul-template"
+  default = "consul-server-template"
+}
+variable "consul_leader_vm_name" {
+  type = string
+  default = "Dev-Consul-1"
 }
 
 # VM vars
@@ -45,18 +45,10 @@ variable "consul_vm_memory" {
   default = 2048
 }
 
-# OS vars
-variable "consul_host_name" {
-  type = string
-  default = "consul-1"
-}
+# Common network vars
 variable "consul_host_domain_name" {
   type = string
   default = "anet.local"
-}
-variable "consul_ip_address" {
-  type = string
-  default = "192.168.1.4"
 }
 variable "consul_ip_netmask" {
   type = number
@@ -70,6 +62,13 @@ variable "consul_dns_servers" {
     type    = list
     default = ["192.168.1.1"]
 }
-variable "consul_root_password" {
-    type    = string
+
+# Consul Leader VM OS vars
+variable "consul_leader_host_name" {
+  type = string
+  default = "dev-consul-1"
+}
+variable "consul_leader_ip_address" {
+  type = string
+  default = "192.168.1.4"
 }
