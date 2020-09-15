@@ -56,11 +56,11 @@ variable "consul_ip_netmask" {
 }
 variable "consul_ip_gateway" {
   type = string
-  default = "192.168.1.1"
+  default = "192.168.4.1"
 }
 variable "consul_dns_servers" {
     type    = list
-    default = ["192.168.1.1"]
+    default = ["192.168.4.1"]
 }
 
 # Consul Leader VM OS vars
@@ -70,5 +70,5 @@ variable "consul_leader_host_name" {
 }
 variable "consul_leader_ip_address" {
   type = string
-  default = "192.168.1.4"
+  default = "192.168.4.4"
 }
